@@ -69,7 +69,6 @@ export function WalletsPage() {
     <div className="page">
       <PageHeader
         title="Wallets"
-        description="Search passenger wallets and freeze or unfreeze them."
       />
 
       <div className="toolbar">

@@ -10,6 +10,11 @@ type CardRow = {
   nfcUid: string | null
   status: string
   issuedAt: string
+  replaces?: {
+    nfcUid: string | null
+    status: string
+    serialNumber: string
+  } | null
   wallet: {
     publicCode: string
     balance: number
@@ -103,19 +108,23 @@ export function CardsPage() {
     setActionSuccess(null)
     try {
       if (action === 'replace') {
-        const next = window.prompt('New card serial number (leave blank to auto-generate):')
+        const next = window.prompt(
+          'New NFC UID from the scanner (example 04:A1:B2:C3:D4:55). The 12-digit card number stays the same.',
+        )
         if (next === null) return
-        const body: { serialNumber?: string } = {}
-        if (next.trim()) body.serialNumber = next.trim()
+        if (!next.trim()) {
+          setActionError('NFC UID is required')
+          return
+        }
         const result = await apiRequest<{
           message: string
-          card: { serialNumber: string }
+          card: { serialNumber: string; nfcUid: string | null }
         }>(`/admin/cards/${encodeURIComponent(serial)}/replace`, {
           method: 'POST',
-          body: JSON.stringify(body),
+          body: JSON.stringify({ nfcUid: next.trim() }),
         })
         setActionSuccess(
-          `${result.message} New serial: ${result.card.serialNumber}`,
+          `${result.message} Card number ${result.card.serialNumber}. NFC ${result.card.nfcUid ?? ''}`,
         )
       } else {
         await apiRequest(
@@ -199,7 +208,6 @@ export function CardsPage() {
       <div className="page">
         <PageHeader
           title="Cards"
-          description="Blank stock inventory — add serials one per line."
           actions={tabs}
         />
 
@@ -301,7 +309,6 @@ export function CardsPage() {
     <div className="page">
       <PageHeader
         title="Cards"
-        description="Search issued cards; freeze, unfreeze, or replace."
         actions={tabs}
       />
 
@@ -337,7 +344,9 @@ export function CardsPage() {
 
       <DataTable
         columns={[
-          'Serial',
+          'Card number',
+          'NFC UID',
+          'Previous NFC',
           'Passenger',
           'Wallet',
           'Balance',
@@ -351,6 +360,18 @@ export function CardsPage() {
           <tr key={c.id}>
             <td>
               <code>{c.serialNumber}</code>
+            </td>
+            <td>{c.nfcUid ? <code>{c.nfcUid}</code> : '—'}</td>
+            <td>
+              {c.replaces?.nfcUid ? (
+                <>
+                  <code>{c.replaces.nfcUid}</code>
+                  <br />
+                  <span className="muted">{c.replaces.status}</span>
+                </>
+              ) : (
+                '—'
+              )}
             </td>
             <td>
               {c.wallet.customer.firstName} {c.wallet.customer.lastName}
@@ -389,7 +410,7 @@ export function CardsPage() {
                     Unfreeze
                   </button>
                 ) : null}
-                {c.status !== 'REPLACED' ? (
+                {(c.status === 'ACTIVE' || c.status === 'FROZEN') ? (
                   <button
                     type="button"
                     className="btn ghost sm"

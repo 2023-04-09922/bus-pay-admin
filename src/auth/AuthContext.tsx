@@ -2,12 +2,14 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from 'react'
 import {
   apiRequest,
+  ApiError,
   clearSession,
   getStoredUserJson,
   getToken,
@@ -21,6 +23,7 @@ type AuthContextValue = {
   isAuthenticated: boolean
   login: (email: string, password: string) => Promise<void>
   logout: () => void
+  refreshSession: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -45,8 +48,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       body: JSON.stringify({ email, password }),
     })
 
-    if (result.user.role !== 'admin') {
-      throw new Error('Only admin accounts can access this dashboard')
+    if (result.user.role !== 'admin' && result.user.role !== 'master_agent') {
+      throw new Error('This account cannot access the control center')
     }
 
     setSession(result.accessToken, JSON.stringify(result.user))
@@ -54,10 +57,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(result.user)
   }, [])
 
+  useEffect(() => {
+    if (!token) return
+    let cancelled = false
+    ;(async () => {
+      try {
+        const session = await apiRequest<{ user: AdminUser }>('/auth/admin/session')
+        if (cancelled) return
+        if (session.user.role !== 'admin' && session.user.role !== 'master_agent') {
+          throw new Error('This account cannot access the control center')
+        }
+        setSession(token, JSON.stringify(session.user))
+        setUser(session.user)
+      } catch (error) {
+        if (cancelled) return
+        if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
+          clearSession()
+          setToken(null)
+          setUser(null)
+        }
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [token])
+
   const logout = useCallback(() => {
     clearSession()
     setToken(null)
     setUser(null)
+  }, [])
+
+  const refreshSession = useCallback(async () => {
+    const current = getToken()
+    if (!current) return
+    const session = await apiRequest<{ user: AdminUser }>('/auth/admin/session')
+    setSession(current, JSON.stringify(session.user))
+    setToken(current)
+    setUser(session.user)
   }, [])
 
   const value = useMemo(
@@ -67,8 +105,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: Boolean(token && user),
       login,
       logout,
+      refreshSession,
     }),
-    [user, token, login, logout],
+    [user, token, login, logout, refreshSession],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

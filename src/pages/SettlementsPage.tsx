@@ -116,7 +116,6 @@ export function SettlementsPage() {
     <div className="page">
       <PageHeader
         title="Settlements"
-        description="Create merchant settlement batches, finalize, and mark paid."
       />
 
       <section className="panel" style={{ marginBottom: '1.25rem' }}>

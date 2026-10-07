@@ -60,6 +60,19 @@ export function formatTzs(amount: number) {
   }).format(amount)
 }
 
+/** Group whole TZS as 1,000,000 while typing. */
+export function formatMoneyInput(raw: string): string {
+  const digits = raw.replace(/\D/g, '').replace(/^0+(?=\d)/, '')
+  if (!digits) return ''
+  return digits.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+}
+
+export function parseMoneyInput(formatted: string): number {
+  const digits = formatted.replace(/\D/g, '')
+  if (!digits) return NaN
+  return Number(digits)
+}
+
 export function formatDate(value: string | Date) {
   return new Date(value).toLocaleString()
 }

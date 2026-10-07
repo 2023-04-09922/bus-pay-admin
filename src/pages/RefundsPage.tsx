@@ -86,7 +86,6 @@ export function RefundsPage() {
     <div className="page">
       <PageHeader
         title="Refunds"
-        description="List completed refunds and reverse successful taps."
       />
 
       <section className="panel" style={{ marginBottom: '1.25rem' }}>

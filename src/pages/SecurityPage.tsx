@@ -91,7 +91,6 @@ export function SecurityPage() {
     <div className="page">
       <PageHeader
         title="Security"
-        description="All roles: lockouts, failed logins, unlock and suspend."
       />
 
       <div className="toolbar">

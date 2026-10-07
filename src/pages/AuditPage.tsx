@@ -39,7 +39,6 @@ export function AuditPage() {
     <div className="page">
       <PageHeader
         title="Audit log"
-        description="Admin and system actions across entities."
       />
 
       <div className="toolbar">

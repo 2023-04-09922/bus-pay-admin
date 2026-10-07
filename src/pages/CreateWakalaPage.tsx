@@ -8,7 +8,6 @@ const emptyForm: CreateWakalaPayload = {
   email: '',
   phone: '',
   nida: '',
-  password: '',
 }
 
 type Props = { embedded?: boolean }
@@ -106,28 +105,13 @@ export function CreateWakalaPage({ embedded = false }: Props) {
             maxLength={20}
           />
         </label>
-        <label>
-          Temporary password
-          <input
-            type="password"
-            value={form.password}
-            onChange={(e) => update('password', e.target.value)}
-            required
-            minLength={8}
-          />
-        </label>
       </div>
-
-      <p className="muted">
-        Password needs upper, lower, number, and symbol (8+ characters). Creates
-        an ACTIVE agent who can sign in immediately.
-      </p>
 
       {error ? <p className="error">{error}</p> : null}
       {result ? (
         <p className="success">
           {result.message}: <code>{result.username}</code> · till{' '}
-          <code>{result.tillNumber}</code>
+          <code>{result.tillNumber}</code>. Temporary password sent by SMS.
         </p>
       ) : null}
 
@@ -144,7 +128,6 @@ export function CreateWakalaPage({ embedded = false }: Props) {
       <header className="page-header">
         <div>
           <h1>Register wakala</h1>
-          <p>Creates an ACTIVE agent account for the mobile app.</p>
         </div>
       </header>
       {formEl}

@@ -44,7 +44,6 @@ export function OverviewPage() {
       <header className="page-header">
         <div>
           <h1>Overview</h1>
-          <p>Live counts and today’s volume from the BusPay API.</p>
         </div>
         <Link className="btn primary" to="/wakala">
           Register wakala

@@ -36,7 +36,6 @@ export function ReportsPage() {
     <div className="page">
       <PageHeader
         title="Reports"
-        description="Tap and top-up volume summary by merchant and agent."
         actions={
           <button type="button" className="btn ghost sm" onClick={reload}>
             Refresh

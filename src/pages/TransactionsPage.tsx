@@ -47,7 +47,6 @@ export function TransactionsPage() {
     <div className="page">
       <PageHeader
         title="Transactions"
-        description="Tap payments across merchants and terminals."
       />
 
       <div className="toolbar">

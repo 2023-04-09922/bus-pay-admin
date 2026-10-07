@@ -41,7 +41,6 @@ export function TopUpsPage() {
     <div className="page">
       <PageHeader
         title="Top-ups"
-        description="Agent and admin wallet top-up history."
       />
 
       <div className="toolbar">

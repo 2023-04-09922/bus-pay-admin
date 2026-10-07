@@ -92,7 +92,6 @@ export function WithdrawalsPage() {
     <div className="page">
       <PageHeader
         title="Withdrawals"
-        description="Review agent withdrawal requests and mark payouts."
       />
 
       <div className="toolbar">

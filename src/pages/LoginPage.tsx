@@ -35,7 +35,6 @@ export function LoginPage() {
         <div className="login-brand">
           <span className="brand-mark large">BP</span>
           <h1>BusPay Admin</h1>
-          <p>System monitoring and wakala registration</p>
         </div>
 
         <form className="card-form" onSubmit={onSubmit}>

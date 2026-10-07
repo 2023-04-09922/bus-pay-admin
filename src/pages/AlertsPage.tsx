@@ -94,7 +94,6 @@ export function AlertsPage() {
     <div className="page">
       <PageHeader
         title="Alerts"
-        description="Operational alerts for SMS failures and locked accounts."
         actions={
           <button
             type="button"

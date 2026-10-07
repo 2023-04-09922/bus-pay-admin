@@ -7,6 +7,8 @@ export type AdminUser = {
   email: string | null
   role: string
   tillNumber: string | null
+  permissions?: string[]
+  mustChangePassword?: boolean
 }
 
 export type LoginResponse = {
@@ -38,7 +40,6 @@ export type CreateWakalaPayload = {
   email: string
   phone: string
   nida: string
-  password: string
 }
 
 export type CreateWakalaResponse = {

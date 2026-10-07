@@ -1,6 +1,7 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { apiRequest, ApiError } from '../api/client'
 import { DataTable } from '../components/DataTable'
+import { UserAvatar } from '../components/UserAvatar'
 import { PageHeader } from '../components/PageHeader'
 import { formatDate, qs, useApiResource } from '../lib/hooks'
 
@@ -14,6 +15,8 @@ type UserRow = {
   role: string
   status: string
   createdAt: string
+  hasProfilePhoto?: boolean
+  profilePhotoUpdatedAt?: string | null
 }
 
 type UsersResponse = {
@@ -218,7 +221,6 @@ export function ConductorsPage() {
       <div className="page">
         <PageHeader
           title="Conductors"
-          description="Register conductor accounts for field terminals."
           actions={tabs}
         />
         <form className="card-form wide" onSubmit={onCreate}>
@@ -297,7 +299,6 @@ export function ConductorsPage() {
       <div className="page">
         <PageHeader
           title="Conductors"
-          description="Assign terminals to active conductors."
           actions={tabs}
         />
         {termLoading ? <p className="muted">Loading…</p> : null}
@@ -394,7 +395,6 @@ export function ConductorsPage() {
     <div className="page">
       <PageHeader
         title="Conductors"
-        description="Search conductors and suspend or reactivate accounts."
         actions={tabs}
       />
 
@@ -427,6 +427,7 @@ export function ConductorsPage() {
 
       <DataTable
         columns={[
+          '',
           'Username',
           'Name',
           'Phone',
@@ -439,6 +440,15 @@ export function ConductorsPage() {
       >
         {data?.users.map((u) => (
           <tr key={u.id}>
+            <td>
+              <UserAvatar
+                id={u.id}
+                firstName={u.firstName}
+                lastName={u.lastName}
+                hasPhoto={u.hasProfilePhoto}
+                updatedAt={u.profilePhotoUpdatedAt}
+              />
+            </td>
             <td>
               <code>{u.username}</code>
             </td>

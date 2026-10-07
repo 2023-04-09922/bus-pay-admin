@@ -1,7 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { apiRequest, ApiError } from '../api/client'
+import { MoneyInput } from '../components/MoneyInput'
 import { PageHeader } from '../components/PageHeader'
-import { useApiResource } from '../lib/hooks'
+import { formatMoneyInput, parseMoneyInput, useApiResource } from '../lib/hooks'
 
 type Settings = {
   defaultFare: string
@@ -24,7 +25,12 @@ export function SettingsPage() {
   const [actionSuccess, setActionSuccess] = useState<string | null>(null)
 
   useEffect(() => {
-    if (data) setForm(data)
+    if (data) {
+      setForm({
+        ...data,
+        defaultFare: formatMoneyInput(data.defaultFare),
+      })
+    }
   }, [data])
 
   async function onSave(event: FormEvent) {
@@ -36,13 +42,16 @@ export function SettingsPage() {
       const updated = await apiRequest<Settings>('/admin/settings', {
         method: 'PATCH',
         body: JSON.stringify({
-          defaultFare: form.defaultFare.trim(),
+          defaultFare: String(parseMoneyInput(form.defaultFare) || ''),
           lockoutMinutes: form.lockoutMinutes.trim(),
           smsEnabled: form.smsEnabled,
           settlementFeeBps: form.settlementFeeBps.trim(),
         }),
       })
-      setForm(updated)
+      setForm({
+        ...updated,
+        defaultFare: formatMoneyInput(updated.defaultFare),
+      })
       setActionSuccess('Settings saved')
       reload()
     } catch (err) {
@@ -60,7 +69,6 @@ export function SettingsPage() {
     <div className="page">
       <PageHeader
         title="Settings"
-        description="Platform defaults for fare, lockout, SMS, and settlement fee."
         actions={
           <button type="button" className="btn ghost sm" onClick={reload}>
             Refresh
@@ -77,10 +85,10 @@ export function SettingsPage() {
         <div className="form-grid">
           <label>
             Default fare (TZS)
-            <input
+            <MoneyInput
               value={form.defaultFare}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, defaultFare: e.target.value }))
+              onChange={(defaultFare) =>
+                setForm((f) => ({ ...f, defaultFare }))
               }
               required
             />

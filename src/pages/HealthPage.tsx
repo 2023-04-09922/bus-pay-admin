@@ -26,7 +26,6 @@ export function HealthPage() {
     <div className="page">
       <PageHeader
         title="Health"
-        description="Database connectivity and SMS outbox backlog."
         actions={
           <button type="button" className="btn ghost sm" onClick={reload}>
             Refresh

@@ -1,52 +1,58 @@
+import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
-
-const NAV = [
-  { to: '/', label: 'Overview', end: true },
-  { to: '/passengers', label: 'Passengers' },
-  { to: '/conductors', label: 'Conductors' },
-  { to: '/wakala', label: 'Wakala' },
-  { to: '/cards', label: 'D-Cards' },
-  { to: '/wallets', label: 'Wallets' },
-  { to: '/transactions', label: 'Transactions' },
-  { to: '/topups', label: 'Top-ups' },
-  { to: '/withdrawals', label: 'Withdrawals' },
-  { to: '/refunds', label: 'Refunds' },
-  { to: '/settlements', label: 'Settlements' },
-  { to: '/reports', label: 'Reports' },
-  { to: '/alerts', label: 'Alerts' },
-  { to: '/audit', label: 'Audit' },
-  { to: '/health', label: 'Health' },
-  { to: '/security', label: 'Security' },
-  { to: '/settings', label: 'Settings' },
-] as const
+import { roleLabel, visibleNav } from '../nav'
 
 export function DashboardLayout() {
   const { user, logout } = useAuth()
+  const [open, setOpen] = useState(false)
+  const sections = visibleNav(user?.role, user?.permissions)
 
   return (
     <div className="shell">
-      <aside className="sidebar">
+      <button
+        type="button"
+        className="nav-toggle"
+        aria-label="Open menu"
+        onClick={() => setOpen((value) => !value)}
+      >
+        Menu
+      </button>
+      {open ? (
+        <button
+          type="button"
+          className="nav-backdrop"
+          aria-label="Close menu"
+          onClick={() => setOpen(false)}
+        />
+      ) : null}
+      <aside className={open ? 'sidebar open' : 'sidebar'}>
         <div className="brand">
           <span className="brand-mark">BP</span>
           <div>
             <strong>BusPay</strong>
-            <p>Admin Dashboard</p>
+            <p>Control Center</p>
           </div>
         </div>
 
         <nav className="nav">
-          {NAV.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={'end' in item ? item.end : false}
-              className={({ isActive }) =>
-                isActive ? 'nav-link active' : 'nav-link'
-              }
-            >
-              {item.label}
-            </NavLink>
+          {sections.map((section) => (
+            <div key={section.label || 'home'} className="nav-section">
+              {section.label ? <p className="nav-label">{section.label}</p> : null}
+              {section.items.map((item) => (
+                <NavLink
+                  key={`${section.label}-${item.label}`}
+                  to={item.to}
+                  end={Boolean(item.end)}
+                  className={({ isActive }) =>
+                    isActive ? 'nav-link active' : 'nav-link'
+                  }
+                  onClick={() => setOpen(false)}
+                >
+                  {item.label}
+                </NavLink>
+              ))}
+            </div>
           ))}
         </nav>
 
@@ -55,10 +61,14 @@ export function DashboardLayout() {
             <span>
               {user?.firstName} {user?.lastName}
             </span>
+            <small>{roleLabel(user?.role)}</small>
             <small>{user?.email}</small>
           </div>
+          <NavLink to="/profile" className="nav-link" onClick={() => setOpen(false)}>
+            My Profile
+          </NavLink>
           <button type="button" className="btn ghost" onClick={logout}>
-            Sign out
+            Logout
           </button>
         </div>
       </aside>
